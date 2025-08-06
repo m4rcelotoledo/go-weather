@@ -1,6 +1,9 @@
 # Build stage
 FROM golang:1.24-alpine AS builder
 
+# Instalar certificados CA
+RUN apk --no-cache add ca-certificates
+
 WORKDIR /app
 
 # Copy go mod files
@@ -17,6 +20,9 @@ RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main .
 
 # Final stage
 FROM scratch
+
+# Copiar certificados CA para HTTPS
+COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 
 # Copy the binary from builder stage
 COPY --from=builder /app/main /main
