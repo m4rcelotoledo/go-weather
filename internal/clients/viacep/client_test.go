@@ -84,7 +84,7 @@ func TestClient_GetAddressByCEP_ServerError(t *testing.T) {
 	// Assertions
 	assert.Error(t, err)
 	assert.Nil(t, result)
-	assert.Contains(t, err.Error(), "ViaCEP returned status code: 500")
+	assert.Contains(t, err.Error(), "server error (5xx): 500")
 }
 
 func TestClient_GetAddressByCEP_Timeout(t *testing.T) {

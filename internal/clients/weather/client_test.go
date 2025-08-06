@@ -56,7 +56,7 @@ func TestClient_GetCurrentWeather_ServerError(t *testing.T) {
 	// Assertions
 	assert.Error(t, err)
 	assert.Nil(t, result)
-	assert.Contains(t, err.Error(), "WeatherAPI returned status code 401")
+	assert.Contains(t, err.Error(), "client error (4xx): 401")
 }
 
 func TestClient_GetCurrentWeather_Timeout(t *testing.T) {
