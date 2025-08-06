@@ -102,7 +102,7 @@ func (h *WeatherHandler) GetWeatherByCEP(w http.ResponseWriter, r *http.Request)
 }
 
 func isValidCEP(cep string) bool {
-	// Remove espaços e hífens
+	// Remove spaces and hyphens
 	cleaned := strings.ReplaceAll(strings.ReplaceAll(cep, "-", ""), " ", "")
 	matched, _ := regexp.MatchString(`^\d{8}$`, cleaned)
 	return matched
