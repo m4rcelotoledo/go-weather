@@ -23,9 +23,16 @@ type client struct {
 }
 
 func NewClient() Client {
+	transport := &http.Transport{
+		MaxIdleConns:        10,
+		MaxIdleConnsPerHost: 10,
+		IdleConnTimeout:     30 * time.Second,
+	}
+
 	return &client{
 		httpClient: &http.Client{
-			Timeout: 10 * time.Second,
+			Transport: transport,
+			Timeout:   10 * time.Second,
 		},
 		baseURL: "https://viacep.com.br/ws",
 	}
@@ -40,7 +47,11 @@ func (c *client) GetAddressByCEP(cep string) (*Response, error) {
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode != http.StatusOK {
+	if resp.StatusCode >= 400 && resp.StatusCode < 500 {
+		return nil, fmt.Errorf("client error (4xx): %d", resp.StatusCode)
+	} else if resp.StatusCode >= 500 {
+		return nil, fmt.Errorf("server error (5xx): %d", resp.StatusCode)
+	} else if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("ViaCEP returned status code: %d", resp.StatusCode)
 	}
 
