@@ -216,7 +216,7 @@ func TestIsValidCEP(t *testing.T) {
 		{"123456789", false}, // 9 digits
 		{"abcd1234", false},  // contains letters
 		{"", false},          // empty
-		{"01001-000", false}, // contains dash
+		{"01001-000", true},  // contains dash (now supported)
 	}
 
 	for _, test := range tests {
