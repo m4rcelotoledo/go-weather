@@ -14,9 +14,10 @@ import (
 	"go-weather/internal/clients/weather"
 	"go-weather/internal/config"
 	"go-weather/internal/handlers"
+	metrics "go-weather/internal/middleware"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
+	chimiddleware "github.com/go-chi/chi/v5/middleware"
 )
 
 // Health check handler
@@ -48,14 +49,15 @@ func main() {
 
 	// Configure router
 	r := chi.NewRouter()
-	r.Use(middleware.Logger)
-	r.Use(middleware.Recoverer)
-	r.Use(middleware.RequestID)
+	r.Use(chimiddleware.Logger)
+	r.Use(chimiddleware.Recoverer)
+	r.Use(chimiddleware.RequestID)
+	r.Use(metrics.MetricsMiddleware)
 
 	// Define routes
 	r.Route("/", func(r chi.Router) {
 		r.Get("/health", healthCheckHandler)
-		r.Get("/{cep}", weatherHandler.GetWeatherByCEP)
+		r.Get("/cep/{cep}", weatherHandler.GetWeatherByCEP)
 	})
 
 	// Create server
