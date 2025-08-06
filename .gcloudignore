@@ -1,0 +1,37 @@
+# Arquivos do Git
+.git
+.gitignore
+
+# Arquivos de desenvolvimento
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+
+# Arquivos temporários
+*.tmp
+*.temp
+
+# Arquivos de IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Arquivos de teste
+*_test.go
+testdata/
+
+# Documentação
+docs/
+README.md
+
+# Docker
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Cloud Run
+.gcloudignore
