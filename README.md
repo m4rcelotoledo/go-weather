@@ -148,6 +148,21 @@ curl http://localhost:8080/cep/01001000
 
 A aplicação está disponível no Google Cloud Run e pode ser acessada através dos seguintes endpoints:
 
+### 🌐 Interface Web (Bônus)
+Para facilitar a visualização e testes, foi criada uma interface web amigável:
+```
+https://go-weather-i6zfts7xxa-rj.a.run.app OU https://go-weather-385086246317.southamerica-east1.run.app/
+```
+
+**⚠️ Importante**: Esta interface é um **bônus** para facilitar os testes. Todas as funcionalidades originais continuam funcionando normalmente através das rotas da API.
+
+A interface web inclui:
+- **Health Check**: Botão para verificar o status da API + link para nova aba
+- **Busca por CEP**: Formulário interativo para testar a busca de clima + link para nova aba
+- **Design responsivo**: Funciona em desktop e mobile
+- **Validação em tempo real**: Validação automática do formato do CEP
+- **Resultados integrados**: Exibe resultados na mesma tela para facilitar visualização
+
 ### Health Check
 ```
 GET https://go-weather-i6zfts7xxa-rj.a.run.app/health

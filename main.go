@@ -31,6 +31,11 @@ func healthCheckHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(response)
 }
 
+// Home page handler
+func homeHandler(w http.ResponseWriter, r *http.Request) {
+	http.ServeFile(w, r, "static/index.html")
+}
+
 func main() {
 	// Load configuration
 	cfg := config.LoadConfig()
@@ -56,6 +61,7 @@ func main() {
 
 	// Define routes
 	r.Route("/", func(r chi.Router) {
+		r.Get("/", homeHandler)
 		r.Get("/health", healthCheckHandler)
 		r.Get("/cep/{cep}", weatherHandler.GetWeatherByCEP)
 	})
