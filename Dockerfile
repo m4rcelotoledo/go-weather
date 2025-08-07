@@ -18,6 +18,9 @@ COPY . .
 # Build the application
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main .
 
+# Create static directory in final stage
+RUN mkdir -p /static
+
 # Final stage
 FROM scratch
 
@@ -26,6 +29,9 @@ COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 
 # Copy the binary from builder stage
 COPY --from=builder /app/main /main
+
+# Copy static files
+COPY --from=builder /app/static /static
 
 # Expose port
 EXPOSE 8080

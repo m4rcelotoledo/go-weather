@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GoWeather API</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .logo {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1rem;
+        }
+
+        .card {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            border: 1px solid #e9ecef;
+        }
+
+        .card h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: 500;
+            transition: transform 0.2s, box-shadow 0.2s;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .cep-example {
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .status {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            font-weight: 500;
+        }
+
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background: #e3f2fd;
+            border-radius: 10px;
+            border: 1px solid #bbdefb;
+        }
+
+        .result h4 {
+            color: #1976d2;
+            margin-bottom: 10px;
+        }
+
+        .result pre {
+            background: #f5f5f5;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+  <body>
+    <div class="container">
+        <div class="logo">🌤️ GoWeather</div>
+        <div class="subtitle">API de Clima por CEP</div>
+          <div class="card">
+            <h3>🔍 Health Check</h3>
+            <p>Verifique se a API está funcionando corretamente</p>
+            <button onclick="checkHealth()" class="btn">Verificar Status</button>
+            <a href="/health" class="btn" target="_blank" style="margin-left: 10px;">Abrir em Nova Aba</a>
+            <div id="healthStatus" class="status" style="display: none;"></div>
+            <div id="healthResult" class="result" style="display: none;"></div>
+        </div>
+
+        <div class="card">
+            <h3>🌡️ Buscar Clima por CEP</h3>
+            <p>Digite um CEP brasileiro para obter a temperatura atual</p>
+
+            <form id="cepForm" onsubmit="searchCEP(event)">
+                <div class="form-group">
+                    <label for="cep">CEP:</label>
+                    <input
+                        type="text"
+                        id="cep"
+                        name="cep"
+                        placeholder="Ex: 01001000"
+                        pattern="[0-9]{8}"
+                        maxlength="8"
+                        required
+                    >
+                    <div class="cep-example">Digite apenas números (8 dígitos)</div>
+                </div>
+                <button type="submit" class="btn">Buscar Clima</button>
+                <a id="cepNewTab" class="btn" target="_blank" style="margin-left: 10px; display: none;">Abrir em Nova Aba</a>
+            </form>
+
+            <div id="status" class="status" style="display: none;"></div>
+            <div id="result" class="result" style="display: none;"></div>
+        </div>
+    </div>
+
+        <script>
+        function checkHealth() {
+            const statusDiv = document.getElementById('healthStatus');
+            const resultDiv = document.getElementById('healthResult');
+
+            // Clear previous results
+            statusDiv.style.display = 'none';
+            resultDiv.style.display = 'none';
+
+            // Show loading
+            showHealthStatus('Verificando status da API...', 'success');
+
+            // Make request
+            fetch('/health')
+                .then(response => {
+                    if (!response.ok) {
+                        return response.text().then(text => {
+                            throw new Error(`HTTP ${response.status}: ${text}`);
+                        });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    showHealthStatus('API funcionando corretamente!', 'success');
+                    showHealthResult(data);
+                })
+                .catch(error => {
+                    showHealthStatus(`Erro: ${error.message}`, 'error');
+                });
+        }
+
+        function searchCEP(event) {
+            event.preventDefault();
+
+            const cep = document.getElementById('cep').value.replace(/\D/g, '');
+            const statusDiv = document.getElementById('status');
+            const resultDiv = document.getElementById('result');
+            const newTabLink = document.getElementById('cepNewTab');
+
+            // Clear previous results
+            statusDiv.style.display = 'none';
+            resultDiv.style.display = 'none';
+            newTabLink.style.display = 'none';
+
+            // Validate CEP
+            if (cep.length !== 8) {
+                showStatus('CEP deve ter 8 dígitos', 'error');
+                return;
+            }
+
+            // Show loading
+            showStatus('Buscando dados do clima...', 'success');
+
+            // Make request
+            fetch(`/cep/${cep}`)
+                .then(response => {
+                    if (!response.ok) {
+                        return response.text().then(text => {
+                            throw new Error(`HTTP ${response.status}: ${text}`);
+                        });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    showStatus('Dados encontrados com sucesso!', 'success');
+                    showResult(data);
+
+                    // Show link to open in new tab
+                    newTabLink.href = `/cep/${cep}`;
+                    newTabLink.style.display = 'inline-block';
+                })
+                .catch(error => {
+                    showStatus(`Erro: ${error.message}`, 'error');
+                });
+        }
+
+        function showHealthStatus(message, type) {
+            const statusDiv = document.getElementById('healthStatus');
+            statusDiv.textContent = message;
+            statusDiv.className = `status ${type}`;
+            statusDiv.style.display = 'block';
+        }
+
+        function showHealthResult(data) {
+            const resultDiv = document.getElementById('healthResult');
+            resultDiv.innerHTML = `
+                <h4>🔍 Status da API</h4>
+                <pre>${JSON.stringify(data, null, 2)}</pre>
+            `;
+            resultDiv.style.display = 'block';
+        }
+
+        function showStatus(message, type) {
+            const statusDiv = document.getElementById('status');
+            statusDiv.textContent = message;
+            statusDiv.className = `status ${type}`;
+            statusDiv.style.display = 'block';
+        }
+
+        function showResult(data) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = `
+                <h4>🌡️ Temperatura Atual</h4>
+                <pre>${JSON.stringify(data, null, 2)}</pre>
+            `;
+            resultDiv.style.display = 'block';
+        }
+
+        // Format CEP automatically
+        document.getElementById('cep').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length > 8) {
+                value = value.substring(0, 8);
+            }
+            e.target.value = value;
+        });
+    </script>
+  </body>
+</html>
